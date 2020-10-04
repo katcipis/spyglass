@@ -45,6 +45,9 @@ Gofmt's style is no one's favorite, yet gofmt is everyone's favorite.
 For this project I chose the [Flake 8](https://pypi.org/project/flake8/)
 because it is what I used on the past and it worked well (for my needs at least).
 
+Regarding testing also got some ideas from
+[Good Integration Practices](https://docs.pytest.org/en/latest/goodpractices.html).
+
 ## Containers
 
 I tried to not impose the use of containers and docker on the project and
