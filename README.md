@@ -5,7 +5,8 @@ Spyglass is a monitoring system for websites
 # Why ?
 
 On this section I describe the reasoning of some of the design
-decisions.
+decisions. It has been 2 years since I don't work continuously in
+production with Python, so this has been an interesting exercise :-).
 
 ## Code Style
 
@@ -16,4 +17,5 @@ just use automation to ensure consistency, like the Go proverb:
 Gofmt's style is no one's favorite, yet gofmt is everyone's favorite.
 ```
 
-For this project I chose the [PEP8 style checker](https://pypi.org/project/pep8/).
+For this project I chose the [Flake 8](https://pypi.org/project/flake8/)
+because it is what I used on the past and it worked well (for my needs at least).
