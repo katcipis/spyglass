@@ -2,8 +2,6 @@ FROM python:3.8.6-buster
 
 WORKDIR /app
 
-ENV PYTHONPATH /app:$PYTHONPATH
-
 COPY ./requirements.txt .
 COPY ./requirements-dev.txt .
 COPY ./Makefile .

@@ -1,3 +1,5 @@
+export PYTHONPATH := `pwd`:$(PYTHONPATH)
+
 .PHONY: deps
 deps:
 	python -m pip install --upgrade pip
