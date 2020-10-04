@@ -2,6 +2,31 @@
 
 Spyglass is a monitoring system for websites
 
+# Dependencies
+
+To run tests and the project itself you will need to have
+installed on your host:
+
+* Make
+* Python >= 3.8
+
+And run:
+
+```
+make deps
+```
+
+Which will install the dependencies on your host, if you want to avoid
+installing the dependencies on your host and you already have
+[Docker](https://docs.docker.com/) installed you can run:
+
+```
+make dev
+```
+
+And you will get an interactive shell inside a container with all
+dependencies already installed.
+
 # Why ?
 
 On this section I describe the reasoning of some of the design
