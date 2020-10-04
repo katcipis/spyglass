@@ -31,3 +31,14 @@ toes, like [venv](https://packaging.python.org/guides/installing-using-pip-and-v
 I ended up using containers because I always worked with more than one
 language and I like how containers allow me to address the isolation
 problem consistently (just one tool).
+
+## Make
+
+Why use make ? It is related to the consistency/multiple languages argument
+used before, I worked for some time with Python and Go in production and I
+enjoyed having a uniform interface to run things like tests, linting, coverage
+reports etc. The interface is decoupled from the underlying tooling, using make,
+so it didn't made a difference if it used containers or not, or the tools
+used for testing. The experience for moving across projects were more smooth
+than previous projects I worked where you ended up having to read a lot of
+docs just to understand how to run basic things like tests.
