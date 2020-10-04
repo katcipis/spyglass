@@ -1,0 +1,8 @@
+FROM python:3.8.6-buster
+
+WORKDIR /app
+
+COPY ./requirements-dev.txt .
+COPY ./Makefile .
+
+RUN make deps
