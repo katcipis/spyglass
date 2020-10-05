@@ -1,5 +1,6 @@
 import time
 import pytest
+import httpx
 from pytest_httpx import to_response
 
 from health.probes import http_probe
@@ -85,10 +86,26 @@ async def test_http_probe_failure_on_4XX_5XX(httpx_mock):
 
 
 @pytest.mark.asyncio
+async def test_http_probe_fails_on_timeout(httpx_mock):
+
+    def timeout_response(request, *args, **kwargs):
+        raise httpx.TimeoutException("fake timeout error", request=request)
+
+    url = "http://test_http_probe_has_response_time_in_ms"
+    httpx_mock.add_callback(timeout_response, url=url, method="GET")
+    res = await http_probe(url)
+
+    assert not res.healthy
+    assert res.error.kind == HealthErrorKind.TIMEOUT
+    assert len(res.error.details) == 1
+    assert res.response_time_ms == 0
+
+
+@pytest.mark.asyncio
 async def test_http_probe_has_response_time_in_ms(httpx_mock):
     response_delay_ms = 50
     response_delay_sec = response_delay_ms / 1000.0
-    max_response_delay_msg = response_delay_ms + 10
+    max_response_delay_ms = response_delay_ms + 10
 
     def delayed_response(*args, **kwargs):
         time.sleep(response_delay_sec)
@@ -99,7 +116,7 @@ async def test_http_probe_has_response_time_in_ms(httpx_mock):
     res = await http_probe(url)
 
     assert_healthy_result(res)
-    assert response_delay_ms <= res.response_time_ms <= max_response_delay_msg
+    assert response_delay_ms <= res.response_time_ms <= max_response_delay_ms
 
 
 def assert_healthy_result(res, status_code=200):

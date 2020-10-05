@@ -19,11 +19,12 @@ async def http_probe(url, patterns=None):
     result. Any 2XX result will be considered a success, any non 2XX result
     will be considered an error.
 
-    Some kind of errors don't have an HTTP status code, like DNS failures or
-    connectivity failures (and timeouts).
-    In these scenarios the status code will be 0.
+    Some kind of errors don't have an HTTP status code and a response time,
+    like network failures and timeouts.
+    In these scenarios the status code and the response time will be 0.
     Only errors that are of the kind HealthErrorKind.HTTP or
-    HealthErrorKind.REGEX will have meaningful HTTP status codes.
+    HealthErrorKind.REGEX will have meaningful HTTP status codes and
+    response times.
 
     If any regexes are provided (an iterable of regexes) the response
     body of a successful response will be matched against each of the patterns,
@@ -38,7 +39,20 @@ async def http_probe(url, patterns=None):
         # probing it seems advantageous to always probe from the
         # same state (initial one, establish new connection, etc).
         start = time.perf_counter()
-        r = await client.get(url)
+
+        try:
+            r = await client.get(url)
+        except httpx.TimeoutException as err:
+            return HealthStatus(
+                healthy=False,
+                status_code=0,
+                response_time_ms=0,
+                error=HealthError(
+                    kind=HealthErrorKind.TIMEOUT,
+                    details=[str(err)]
+                ),
+            )
+
         response_time_ms = (time.perf_counter() - start) * 1000
 
         if not (r.status_code >= 200 and r.status_code < 300):
