@@ -7,11 +7,6 @@ from health.probes import http_probe
 from health.status import HealthErrorKind
 
 
-# Tests
-# - connection timeout
-# - DNS failure
-
-
 @pytest.mark.asyncio
 async def test_http_probe_success_on_2XX(httpx_mock):
     url = "http://test_http_probe_success"
