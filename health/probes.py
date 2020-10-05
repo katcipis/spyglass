@@ -1,3 +1,4 @@
+import time
 import httpx
 
 from health.status import HealthStatus
@@ -20,5 +21,10 @@ async def http_probe(url, patterns=None):
     if any of them fail to match the website will be considered unhealthy.
     """
     async with httpx.AsyncClient() as client:
+        start = time.perf_counter()
         r = await client.get(url)
-        return HealthStatus(healthy=r.status_code == 200, response_time_ms="TODO")
+        response_time_ms = (time.perf_counter() - start) * 1000
+        return HealthStatus(
+            healthy=r.status_code == 200,
+            response_time_ms=response_time_ms,
+        )
