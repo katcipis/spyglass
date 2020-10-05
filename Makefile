@@ -10,7 +10,7 @@ deps:
 
 .PHONY: lint
 lint:
-	flake8 . --count --show-source --statistics --max-line-length=127
+	flake8 . --count --show-source --statistics
 
 .PHONY: test
 test:
