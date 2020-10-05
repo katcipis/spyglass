@@ -1,3 +1,8 @@
+export PYTHONPATH := `pwd`:$(PYTHONPATH)
+
+.PHONY: all
+all: lint test
+
 .PHONY: deps
 deps:
 	python -m pip install --upgrade pip
@@ -5,11 +10,11 @@ deps:
 
 .PHONY: lint
 lint:
-	flake8 . --count --show-source --statistics --max-line-length=127
+	flake8 . --count --show-source --statistics
 
 .PHONY: test
 test:
-	pytest
+	pytest --cov-report term --cov=health
 
 devimg=spyglass-devenv
 .PHONY: devimage
