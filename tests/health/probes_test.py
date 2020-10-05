@@ -3,6 +3,7 @@ import pytest
 from pytest_httpx import to_response
 
 from health.probes import http_probe
+from health.status import HealthErrorKind
 
 
 # Tests
@@ -18,8 +19,10 @@ async def test_http_probe_success_on_2XX(httpx_mock):
     for status_code in range(200,300):
         httpx_mock.add_response(url=url, method="GET", status_code=status_code)
         res = await http_probe(url)
-        assert res.healthy, f"expected success with status code {status_code}"
-        assert res.status_code == status_code, f"expected success with status code {status_code}"
+        errmsg = f"expected success with status code {status_code}"
+        assert res.healthy, errmsg
+        assert res.status_code == status_code, errmsg
+        assert res.error is None, errmsg
 
 
 @pytest.mark.asyncio
@@ -30,6 +33,7 @@ async def test_http_probe_failure_on_4XX_5XX(httpx_mock):
         res = await http_probe(url)
         assert not res.healthy, f"expected failure with status code {status_code}"
         assert res.status_code == status_code, f"expected failure with status code {status_code}"
+        assert res.error.kind == HealthErrorKind.HTTP, errmsg
 
 
 @pytest.mark.asyncio
@@ -47,3 +51,4 @@ async def test_http_probe_success_has_response_time_in_ms(httpx_mock):
     res = await http_probe(url)
     assert res.healthy
     assert response_delay_ms <= res.response_time_ms <= max_delay_ms
+    assert res.error is None, errmsg

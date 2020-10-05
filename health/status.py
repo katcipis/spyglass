@@ -1,3 +1,10 @@
 from collections import namedtuple
+from enum import Enum
 
-HealthStatus = namedtuple('HealthStatus', ['healthy', 'response_time_ms', 'status_code'])
+class HealthErrorKind(Enum):
+    HTTP = 1
+    REGEX = 2
+
+HealthError = namedtuple('HealthError', ['kind'])
+
+HealthStatus = namedtuple('HealthStatus', ['healthy', 'response_time_ms', 'status_code', 'error'])
