@@ -25,6 +25,7 @@ async def http_probe(url, patterns=None):
         r = await client.get(url)
         response_time_ms = (time.perf_counter() - start) * 1000
         return HealthStatus(
-            healthy=r.status_code == 200,
+            healthy=r.status_code >= 200 and r.status_code < 300,
+            status_code=r.status_code,
             response_time_ms=response_time_ms,
         )

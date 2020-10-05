@@ -13,11 +13,23 @@ from health.probes import http_probe
 # - DNS failure
 
 @pytest.mark.asyncio
-async def test_http_probe_success(httpx_mock):
+async def test_http_probe_success_on_2XX(httpx_mock):
     url = "http://test_http_probe_success"
-    httpx_mock.add_response(url=url, method="GET")
-    res = await http_probe(url)
-    assert res.healthy
+    for status_code in range(200,300):
+        httpx_mock.add_response(url=url, method="GET", status_code=status_code)
+        res = await http_probe(url)
+        assert res.healthy, f"expected success with status code {status_code}"
+        assert res.status_code == status_code, f"expected success with status code {status_code}"
+
+
+@pytest.mark.asyncio
+async def test_http_probe_failure_on_4XX_5XX(httpx_mock):
+    url = "http://test_http_probe_failure"
+    for status_code in range(400,600):
+        httpx_mock.add_response(url=url, method="GET", status_code=status_code)
+        res = await http_probe(url)
+        assert not res.healthy, f"expected failure with status code {status_code}"
+        assert res.status_code == status_code, f"expected failure with status code {status_code}"
 
 
 @pytest.mark.asyncio
