@@ -19,15 +19,17 @@ async def http_probe(url, patterns=None):
     result. Any 2XX result will be considered a success, any non 2XX result
     will be considered an error.
 
-    Some kind of errors don't have an HTTP status code, like DNS failures or connectivity
-    failures (and timeouts). In these scenarios the status code will be 0.
+    Some kind of errors don't have an HTTP status code, like DNS failures or
+    connectivity failures (and timeouts).
+    In these scenarios the status code will be 0.
     Only errors that are of the kind HealthErrorKind.HTTP or
     HealthErrorKind.REGEX will have meaningful HTTP status codes.
 
     If any regexes are provided (an iterable of regexes) the response
     body of a successful response will be matched against each of the patterns,
-    if any of them fail to match the response body it will be considered an error,
-    but preserving the original http status code received on the response.
+    if any of them fail to match the response body it will be considered
+    an error, but preserving the original http status code
+    received on the response.
     """
     async with httpx.AsyncClient() as client:
         start = time.perf_counter()
@@ -55,7 +57,8 @@ async def http_probe(url, patterns=None):
         errs = []
         for pattern in patterns:
             if not re.search(pattern, r.text):
-                errs.append(f"unable to match pattern '{pattern}' to response body")
+                err = f"unable to match pattern '{pattern}' to response body"
+                errs.append(err)
 
         if errs == []:
             return success
@@ -64,5 +67,5 @@ async def http_probe(url, patterns=None):
             healthy=False,
             status_code=r.status_code,
             response_time_ms=response_time_ms,
-            error=HealthError(kind=HealthErrorKind.REGEX,details=errs),
+            error=HealthError(kind=HealthErrorKind.REGEX, details=errs),
         )

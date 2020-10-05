@@ -14,10 +14,9 @@ from health.status import HealthErrorKind
 @pytest.mark.asyncio
 async def test_http_probe_success_on_2XX(httpx_mock):
     url = "http://test_http_probe_success"
-    for status_code in range(200,300):
+    for status_code in range(200, 300):
         httpx_mock.add_response(url=url, method="GET", status_code=status_code)
         res = await http_probe(url)
-        errmsg = f"expected success with status code {status_code}"
 
         assert_healthy_result(res, status_code)
 
@@ -51,20 +50,21 @@ async def test_http_probe_failure_on_single_regex_not_matching(httpx_mock):
 
     assert not res.healthy
     assert res.status_code == 200
-    assert res.error.kind == HealthErrorKind.REGEX, errmsg
+    assert res.error.kind == HealthErrorKind.REGEX
     assert len(res.error.details) == 1
     assert res.response_time_ms > 0
 
+
 @pytest.mark.asyncio
-async def test_http_probe_failure_on_one_of_multiple_regexes_not_matching(httpx_mock):
-    url = "http://test_http_probe_failure_on_one_of_multiple_regexes_not_matching"
+async def test_http_probe_failure_on_multiple_regexes_not_matching(httpx_mock):
+    url = "http://test_http_probe_failure_on_multiple_regexes_not_matching"
     response_body = "the response body"
     httpx_mock.add_response(url=url, method="GET", data=response_body)
     res = await http_probe(url, ["the", "nomatch", "body", "duh"])
 
     assert not res.healthy
     assert res.status_code == 200
-    assert res.error.kind == HealthErrorKind.REGEX, errmsg
+    assert res.error.kind == HealthErrorKind.REGEX
     assert len(res.error.details) == 2
     assert res.response_time_ms > 0
 
@@ -72,12 +72,13 @@ async def test_http_probe_failure_on_one_of_multiple_regexes_not_matching(httpx_
 @pytest.mark.asyncio
 async def test_http_probe_failure_on_4XX_5XX(httpx_mock):
     url = "http://test_http_probe_failure"
-    for status_code in range(400,600):
+    for status_code in range(400, 600):
         httpx_mock.add_response(url=url, method="GET", status_code=status_code)
         res = await http_probe(url)
 
-        assert not res.healthy, f"expected failure with status code {status_code}"
-        assert res.status_code == status_code, f"expected failure with status code {status_code}"
+        errmsg = f"expected failure with status code {status_code}"
+        assert not res.healthy, errmsg
+        assert res.status_code == status_code, errmsg
         assert res.error.kind == HealthErrorKind.HTTP, errmsg
         assert res.error.details == []
         assert res.response_time_ms > 0
