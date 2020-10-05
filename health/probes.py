@@ -1,3 +1,4 @@
+import re
 import time
 import httpx
 
@@ -33,18 +34,35 @@ async def http_probe(url, patterns=None):
         r = await client.get(url)
         response_time_ms = (time.perf_counter() - start) * 1000
 
-        if r.status_code >= 200 and r.status_code < 300:
+        if not (r.status_code >= 200 and r.status_code < 300):
             return HealthStatus(
-                healthy=True,
+                healthy=False,
                 status_code=r.status_code,
                 response_time_ms=response_time_ms,
-                error=None,
+                error=HealthError(kind=HealthErrorKind.HTTP, details=[]),
             )
+
+        success = HealthStatus(
+            healthy=True,
+            status_code=r.status_code,
+            response_time_ms=response_time_ms,
+            error=None,
+        )
+
+        if patterns is None:
+            return success
+
+        errs = []
+        for pattern in patterns:
+            if not re.search(pattern, r.text):
+                errs.append(f"unable to match pattern '{pattern}' to response body")
+
+        if errs == []:
+            return success
 
         return HealthStatus(
             healthy=False,
             status_code=r.status_code,
             response_time_ms=response_time_ms,
-            error=HealthError(kind=HealthErrorKind.HTTP),
+            error=HealthError(kind=HealthErrorKind.REGEX,details=errs),
         )
-

@@ -7,9 +7,19 @@ from health.status import HealthErrorKind
 
 
 # Tests
-# - Regex matching (success/failure)
 # - connection timeout
 # - DNS failure
+
+
+@pytest.mark.asyncio
+async def test_http_probe_success_on_2XX(httpx_mock):
+    url = "http://test_http_probe_success"
+    for status_code in range(200,300):
+        httpx_mock.add_response(url=url, method="GET", status_code=status_code)
+        res = await http_probe(url)
+        errmsg = f"expected success with status code {status_code}"
+
+        assert_healthy_result(res, status_code)
 
 
 @pytest.mark.asyncio
@@ -33,14 +43,16 @@ async def test_http_probe_success_on_multiple_regex_matches(httpx_mock):
 
 
 @pytest.mark.asyncio
-async def test_http_probe_success_on_2XX(httpx_mock):
-    url = "http://test_http_probe_success"
-    for status_code in range(200,300):
-        httpx_mock.add_response(url=url, method="GET", status_code=status_code)
-        res = await http_probe(url)
-        errmsg = f"expected success with status code {status_code}"
+async def test_http_probe_failure_on_single_regex_not_matching(httpx_mock):
+    url = "http://test_http_probe_failure_on_single_regex_not_matching"
+    response_body = "the response body"
+    httpx_mock.add_response(url=url, method="GET", data=response_body)
+    res = await http_probe(url, ["nomatch"])
 
-        assert_healthy_result(res, status_code)
+    assert not res.healthy
+    assert res.status_code == 200
+    assert res.error.kind == HealthErrorKind.REGEX, errmsg
+    assert res.response_time_ms > 0
 
 
 @pytest.mark.asyncio
@@ -60,7 +72,7 @@ async def test_http_probe_failure_on_4XX_5XX(httpx_mock):
 async def test_http_probe_has_response_time_in_ms(httpx_mock):
     response_delay_ms = 50
     response_delay_sec = response_delay_ms / 1000.0
-    max_response_delay_msg = response_delay_ms * 2
+    max_response_delay_msg = response_delay_ms + 10
 
     def delayed_response(*args, **kwargs):
         time.sleep(response_delay_sec)
