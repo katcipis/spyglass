@@ -52,6 +52,16 @@ async def http_probe(url, patterns=None):
                     details=[str(err)]
                 ),
             )
+        except Exception as err:
+            return HealthStatus(
+                healthy=False,
+                status_code=0,
+                response_time_ms=0,
+                error=HealthError(
+                    kind=HealthErrorKind.UNKNOWN,
+                    details=[str(err)]
+                ),
+            )
 
         response_time_ms = (time.perf_counter() - start) * 1000
 

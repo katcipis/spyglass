@@ -3,9 +3,10 @@ from enum import Enum
 
 
 class HealthErrorKind(Enum):
-    HTTP = 1
-    REGEX = 2
-    TIMEOUT = 3
+    UNKNOWN = 1
+    HTTP = 2
+    REGEX = 3
+    TIMEOUT = 4
 
 
 HealthError = namedtuple('HealthError', ['kind', 'details'])

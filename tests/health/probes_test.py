@@ -102,6 +102,22 @@ async def test_http_probe_fails_on_timeout(httpx_mock):
 
 
 @pytest.mark.asyncio
+async def test_http_probe_fails_on_unknown_err(httpx_mock):
+
+    def err_response(request, *args, **kwargs):
+        raise Exception("fake unknow error")
+
+    url = "http://test_http_probe_fails_on_unknown_err"
+    httpx_mock.add_callback(err_response, url=url, method="GET")
+    res = await http_probe(url)
+
+    assert not res.healthy
+    assert res.error.kind == HealthErrorKind.UNKNOWN
+    assert len(res.error.details) == 1
+    assert res.response_time_ms == 0
+
+
+@pytest.mark.asyncio
 async def test_http_probe_has_response_time_in_ms(httpx_mock):
     response_delay_ms = 50
     response_delay_sec = response_delay_ms / 1000.0
