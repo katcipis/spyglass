@@ -70,7 +70,7 @@ async def http_probe(url, patterns=None):
         errs = []
         for pattern in patterns:
             if not re.search(pattern, r.text):
-                err = f"unable to match pattern '{pattern}' to response body"
+                err = f"unable to find match to '{pattern}' on response body"
                 errs.append(err)
 
         if errs == []:
