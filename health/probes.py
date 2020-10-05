@@ -31,7 +31,12 @@ async def http_probe(url, patterns=None):
     an error, but preserving the original http status code
     received on the response.
     """
+
     async with httpx.AsyncClient() as client:
+        # WHY: Each probe creating a new client is not advised when
+        # there are concerns with performance, but for the case of
+        # probing it seems advantageous to always probe from the
+        # same state (initial one, establish new connection, etc).
         start = time.perf_counter()
         r = await client.get(url)
         response_time_ms = (time.perf_counter() - start) * 1000
