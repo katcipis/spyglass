@@ -1,5 +1,8 @@
 export PYTHONPATH := `pwd`:$(PYTHONPATH)
 
+.PHONY: all
+all: lint test
+
 .PHONY: deps
 deps:
 	python -m pip install --upgrade pip
