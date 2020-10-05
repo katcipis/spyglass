@@ -70,3 +70,29 @@ so it didn't made a difference if it used containers or not, or the tools
 used for testing. The experience for moving across projects were more smooth
 than previous projects I worked where you ended up having to read a lot of
 docs just to understand how to run basic things like tests.
+
+## Time Sensitive Tests
+
+It is hard to avoid flaky tests when dealing with time, but I had some
+positive experiences in the past when working with confidence
+intervals. Also worked with mocking time in main loops (NodeJS), it can work
+well but sometimes it gets out of hand and also results on flaky tests.
+
+It could be a broken approach to mocking time, side effects of mocking
+persisted across tests because other third party modules also
+depended on time (NodeJS main loop itself included).
+
+One alternative to messing around with global/default time facilities
+is to inject some sort of timer through the API. That alternative is
+safer and deterministic but always made me feel bad because the API
+gets more complex and clumsy, beyond the test itself I never seem a
+client of an API interested on passing its own timer, so it imposes
+complexity on the caller that doesn't seem desirable.
+
+Anyway I don't feel like I have a definitive answer for this,
+but in this case I'm going with "no time mocking". The intervals used
+are quite big, the idea is to catch big regressions in the time sensitive
+logic, some bugs can still slip through.
+
+This is not the same as tests that required some sort of synchronization but
+instead an sleep was added and "it just works", I really hate that kind of stuff.
