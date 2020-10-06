@@ -1,4 +1,5 @@
 import json
+import logging
 
 from aiokafka import AIOKafkaProducer
 from aiokafka.helpers import create_ssl_context
@@ -26,6 +27,7 @@ class KafkaPublisher:
             ssl_context=context,
             enable_idempotence=True,
         )
+        self.__log = logging.getLogger("health.publishers.KafkaPublisher")
 
     async def start(self):
         await self.__producer.start()
@@ -49,10 +51,11 @@ class KafkaPublisher:
                 "details": status.error.details,
             }
 
-        serialized = json.dumps(publish_data).encode()
+        msg = json.dumps(publish_data)
         try:
-            await self.__producer.send_and_wait(self.__topic, serialized)
+            await self.__producer.send_and_wait(self.__topic, msg.encode())
         except KafkaTimeoutError:
-            print("TODO LOG")
+            self.__log.error(f"timeout publishing status, message lost: {msg}")
         except KafkaError as err:
-            print("TODO LOG", err)
+            errmsg = f"error: '{err}' publishing status, message lost: {msg}"
+            self.__log.error(errmsg)
