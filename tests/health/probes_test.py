@@ -1,6 +1,10 @@
 import time
 import pytest
 import httpx
+from datetime import datetime
+from datetime import timezone
+from datetime import timedelta
+
 from pytest_httpx import to_response
 
 from health.probes import http_probe
@@ -135,3 +139,13 @@ def assert_healthy_result(res, status_code=200):
     assert res.status_code == status_code
     assert res.error is None
     assert res.response_time_ms > 0
+
+    max_allowed_skew_ms = 10
+    response_time_delta_ms = res.response_time_ms + max_allowed_skew_ms
+    response_time_delta = timedelta(milliseconds=response_time_delta_ms)
+
+    now = datetime.now(timezone.utc)
+    expected_min_timestamp = now - response_time_delta
+    expected_max_timestamp = now + response_time_delta
+
+    assert expected_min_timestamp <= res.timestamp <= expected_max_timestamp

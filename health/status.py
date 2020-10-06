@@ -13,6 +13,7 @@ HealthError = namedtuple('HealthError', ['kind', 'details'])
 
 
 HealthStatus = namedtuple('HealthStatus', [
+    'timestamp',
     'healthy',
     'response_time_ms',
     'status_code',
