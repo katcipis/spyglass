@@ -13,4 +13,7 @@ async def test_kafka_publisher_publish_success():
     publisher = KafkaPublisher(
         cfg.uri, cfg.ssl_cafile, cfg.ssl_cert, cfg.ssl_keyfile)
 
-    await publisher.start()
+    try:
+        await publisher.start()
+    finally:
+        await publisher.stop()
