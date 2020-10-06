@@ -85,7 +85,7 @@ async def http_probe(url, patterns=None):
             return success
 
         return HealthStatus(
-            timestamp="TODO",
+            timestamp=timestamp,
             healthy=False,
             status_code=r.status_code,
             response_time_ms=response_time_ms,

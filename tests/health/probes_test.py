@@ -54,6 +54,8 @@ async def test_http_probe_failure_on_single_regex_not_matching(httpx_mock):
     assert len(res.error.details) == 1
     assert res.response_time_ms > 0
 
+    assert_health_status_timestamp(res)
+
 
 @pytest.mark.asyncio
 async def test_http_probe_failure_on_multiple_regexes_not_matching(httpx_mock):
@@ -67,6 +69,8 @@ async def test_http_probe_failure_on_multiple_regexes_not_matching(httpx_mock):
     assert res.error.kind == HealthErrorKind.REGEX
     assert len(res.error.details) == 2
     assert res.response_time_ms > 0
+
+    assert_health_status_timestamp(res)
 
 
 @pytest.mark.asyncio
