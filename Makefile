@@ -14,7 +14,11 @@ lint:
 
 .PHONY: test
 test:
-	pytest --cov-report term --cov=health
+	pytest ./tests/unit --cov-report term --cov=health
+
+.PHONY: test-integration
+test-integration:
+	pytest ./tests/integration -rs --cov-report term --cov=health
 
 devimg=spyglass-devenv
 .PHONY: devimage
