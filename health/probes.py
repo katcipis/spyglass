@@ -57,7 +57,7 @@ async def http_probe(url, patterns=None):
 
         if not (r.status_code >= 200 and r.status_code < 300):
             return HealthStatus(
-                timestamp="TODO",
+                timestamp=timestamp,
                 healthy=False,
                 status_code=r.status_code,
                 response_time_ms=response_time_ms,

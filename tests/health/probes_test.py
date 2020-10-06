@@ -87,6 +87,8 @@ async def test_http_probe_failure_on_4XX_5XX(httpx_mock):
         assert res.error.details == []
         assert res.response_time_ms > 0
 
+        assert_health_status_timestamp(res)
+
 
 @pytest.mark.asyncio
 async def test_http_probe_fails_on_timeout(httpx_mock):
