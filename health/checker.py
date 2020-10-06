@@ -1,5 +1,6 @@
 import asyncio
 from collections import namedtuple
+from urllib.parse import urlparse
 
 from health.probes import http_probe
 
@@ -9,6 +10,10 @@ HealthCheck = namedtuple(
     ['url', 'period_sec', 'patterns'],
     defaults=(None,),
 )
+
+
+class InvalidParamsError(Exception):
+    pass
 
 
 class HealthChecker:
@@ -35,7 +40,27 @@ class HealthChecker:
         The handler will be responsible for handling results for all the
         provided health check targets.
         """
-        # TODO: validate check (no negative/0 period and no empty URL)
+        if len(checks) == 0:
+            raise InvalidParamsError(
+                "HealthChecker needs at least one HealthCheck defined")
+
+        for check in checks:
+            try:
+                res = urlparse(check.url)
+                if res.scheme == "":
+                    raise InvalidParamsError(
+                        f"url '{check.url}' doesn't have an scheme")
+                if res.netloc == "":
+                    raise InvalidParamsError(
+                        f"url '{check.url}' doesn't have an domain")
+            except Exception as err:
+                raise InvalidParamsError(
+                    f"can't parse check url, err: '{err}'")
+            if check.period_sec <= 0:
+                psec = check.period_sec
+                raise InvalidParamsError(
+                    f"period_sec must be a positive value, got: {psec}")
+
         self.__checks = checks
         self.__handler = handler
         self.__run = False

@@ -3,6 +3,7 @@ import pytest
 
 from health.checker import HealthChecker
 from health.checker import HealthCheck
+from health.checker import InvalidParamsError
 
 
 @pytest.mark.asyncio
@@ -52,3 +53,24 @@ async def test_health_checker_probes_all_checks(httpx_mock):
     assert results_urls[url1]
     assert results_urls[url2]
     assert results_urls[url3]
+
+
+def test_health_checker_check_validation():
+
+    async def nop_handler():
+        pass
+
+    invalid_checks = [
+        HealthCheck(url="", period_sec=1),
+        HealthCheck(url="not_valid_url", period_sec=1),
+        HealthCheck(url="http://", period_sec=1),
+        HealthCheck(url="http://valid_url", period_sec=0),
+        HealthCheck(url="http://valid_url", period_sec=-1),
+    ]
+
+    for check in invalid_checks:
+        with pytest.raises(InvalidParamsError):
+            HealthChecker(nop_handler, [check])
+
+    with pytest.raises(InvalidParamsError):
+        HealthChecker(nop_handler, [])
