@@ -1,3 +1,12 @@
+from collections import namedtuple
+
+
+HealthCheck = namedtuple(
+    'HealthCheck',
+    ['url', 'period_sec', 'matches'],
+    defaults=(None,),
+)
+
 
 class HealthChecker:
     """
@@ -7,7 +16,7 @@ class HealthChecker:
     probe them (through HTTP) regularly.
     """
 
-    def __init__(self, checks, handler):
+    def __init__(self, handler, checks):
         """
         Creates a new HealthChecker.
 
@@ -30,9 +39,14 @@ class HealthChecker:
         """
         Starts to periodically check for healthiness.
 
-        This method should be called only once. Calling it
-        will start multiple asynchronous tasks that
+        Calling it will start multiple asynchronous tasks that
         will periodically probe HTTP endpoints and call
         a handler with the results.
+        """
+        pass
+
+    def stop(self):
+        """
+        Stops the periodical check for healthiness.
         """
         pass
