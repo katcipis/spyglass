@@ -8,6 +8,7 @@ from health.checker import HealthCheck
 @pytest.mark.asyncio
 async def test_health_checker_probes_all_checks(httpx_mock):
     results = []
+
     async def results_handler(url, status):
         results.append((url, status))
 
@@ -36,7 +37,6 @@ async def test_health_checker_probes_all_checks(httpx_mock):
         await asyncio.sleep(max_period + max_time_skew_sec)
     finally:
         checker.stop()
-
 
     results_urls = {}
 
