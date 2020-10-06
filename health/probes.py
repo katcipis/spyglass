@@ -1,6 +1,8 @@
 import re
 import time
 import httpx
+from datetime import datetime
+from datetime import timezone
 
 from health.status import HealthStatus
 from health.status import HealthError
@@ -13,7 +15,9 @@ async def http_probe(url, patterns=None):
 
     Given an HTTP url like 'http://coolwebsite.com' will probe it
     for healthiness and return an health.status.HealthStatus indicating
-    the result of the probing.
+    the result of the probing. The timestamp provided on the status response
+    indicates the moment the request was made to the given url. It's
+    timezone will be UTC.
 
     No exceptions are raised, all errors are encapsulated as a HealthStatus
     result. Any 2XX result will be considered a success, any non 2XX result
@@ -38,19 +42,22 @@ async def http_probe(url, patterns=None):
         # there are concerns with performance, but for the case of
         # probing it seems advantageous to always probe from the
         # same state (initial one, establish new connection, etc).
+
         start = time.perf_counter()
+        timestamp = datetime.now(timezone.utc)
 
         try:
             r = await client.get(url)
         except httpx.TimeoutException as err:
-            return _non_http_error(err, HealthErrorKind.TIMEOUT)
+            return _non_http_error(timestamp, err, HealthErrorKind.TIMEOUT)
         except Exception as err:
-            return _non_http_error(err, HealthErrorKind.UNKNOWN)
+            return _non_http_error(timestamp, err, HealthErrorKind.UNKNOWN)
 
         response_time_ms = (time.perf_counter() - start) * 1000
 
         if not (r.status_code >= 200 and r.status_code < 300):
             return HealthStatus(
+                timestamp=timestamp,
                 healthy=False,
                 status_code=r.status_code,
                 response_time_ms=response_time_ms,
@@ -58,6 +65,7 @@ async def http_probe(url, patterns=None):
             )
 
         success = HealthStatus(
+            timestamp=timestamp,
             healthy=True,
             status_code=r.status_code,
             response_time_ms=response_time_ms,
@@ -77,6 +85,7 @@ async def http_probe(url, patterns=None):
             return success
 
         return HealthStatus(
+            timestamp=timestamp,
             healthy=False,
             status_code=r.status_code,
             response_time_ms=response_time_ms,
@@ -84,8 +93,9 @@ async def http_probe(url, patterns=None):
         )
 
 
-def _non_http_error(err, kind):
+def _non_http_error(timestamp, err, kind):
     return HealthStatus(
+        timestamp=timestamp,
         healthy=False,
         status_code=0,
         response_time_ms=0,

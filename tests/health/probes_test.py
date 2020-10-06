@@ -1,6 +1,10 @@
 import time
 import pytest
 import httpx
+from datetime import datetime
+from datetime import timezone
+from datetime import timedelta
+
 from pytest_httpx import to_response
 
 from health.probes import http_probe
@@ -50,6 +54,8 @@ async def test_http_probe_failure_on_single_regex_not_matching(httpx_mock):
     assert len(res.error.details) == 1
     assert res.response_time_ms > 0
 
+    assert_health_status_timestamp(res)
+
 
 @pytest.mark.asyncio
 async def test_http_probe_failure_on_multiple_regexes_not_matching(httpx_mock):
@@ -63,6 +69,8 @@ async def test_http_probe_failure_on_multiple_regexes_not_matching(httpx_mock):
     assert res.error.kind == HealthErrorKind.REGEX
     assert len(res.error.details) == 2
     assert res.response_time_ms > 0
+
+    assert_health_status_timestamp(res)
 
 
 @pytest.mark.asyncio
@@ -78,6 +86,8 @@ async def test_http_probe_failure_on_4XX_5XX(httpx_mock):
         assert res.error.kind == HealthErrorKind.HTTP, errmsg
         assert res.error.details == []
         assert res.response_time_ms > 0
+
+        assert_health_status_timestamp(res)
 
 
 @pytest.mark.asyncio
@@ -95,6 +105,8 @@ async def test_http_probe_fails_on_timeout(httpx_mock):
     assert len(res.error.details) == 1
     assert res.response_time_ms == 0
 
+    assert_health_status_timestamp(res)
+
 
 @pytest.mark.asyncio
 async def test_http_probe_fails_on_unknown_err(httpx_mock):
@@ -110,6 +122,8 @@ async def test_http_probe_fails_on_unknown_err(httpx_mock):
     assert res.error.kind == HealthErrorKind.UNKNOWN
     assert len(res.error.details) == 1
     assert res.response_time_ms == 0
+
+    assert_health_status_timestamp(res)
 
 
 @pytest.mark.asyncio
@@ -135,3 +149,22 @@ def assert_healthy_result(res, status_code=200):
     assert res.status_code == status_code
     assert res.error is None
     assert res.response_time_ms > 0
+
+    assert_health_status_timestamp(res)
+
+
+def assert_health_status_timestamp(res):
+    timestamp = res.timestamp
+
+    assert timestamp.tzinfo is not None
+    assert timestamp.tzinfo.utcoffset(timestamp) == timedelta(0)
+
+    max_allowed_skew_ms = 10
+    response_time_delta_ms = res.response_time_ms + max_allowed_skew_ms
+    response_time_delta = timedelta(milliseconds=response_time_delta_ms)
+
+    now = datetime.now(timezone.utc)
+    expected_min_timestamp = now - response_time_delta
+    expected_max_timestamp = now + response_time_delta
+
+    assert expected_min_timestamp <= timestamp <= expected_max_timestamp
