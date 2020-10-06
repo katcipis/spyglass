@@ -140,6 +140,15 @@ def assert_healthy_result(res, status_code=200):
     assert res.error is None
     assert res.response_time_ms > 0
 
+    assert_health_status_timestamp(res)
+
+
+def assert_health_status_timestamp(res):
+    timestamp = res.timestamp
+
+    assert timestamp.tzinfo is not None
+    assert timestamp.tzinfo.utcoffset(timestamp) == timedelta(0)
+
     max_allowed_skew_ms = 10
     response_time_delta_ms = res.response_time_ms + max_allowed_skew_ms
     response_time_delta = timedelta(milliseconds=response_time_delta_ms)
@@ -148,4 +157,4 @@ def assert_healthy_result(res, status_code=200):
     expected_min_timestamp = now - response_time_delta
     expected_max_timestamp = now + response_time_delta
 
-    assert expected_min_timestamp <= res.timestamp <= expected_max_timestamp
+    assert expected_min_timestamp <= timestamp <= expected_max_timestamp
