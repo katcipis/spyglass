@@ -54,8 +54,9 @@ class HealthChecker:
                     raise InvalidParamsError(
                         f"url '{check.url}' doesn't have an domain")
             except Exception as err:
+                url = check.url
                 raise InvalidParamsError(
-                    f"can't parse check url, err: '{err}'")
+                    f"can't parse health check url '{url}', err: '{err}'")
             if check.period_sec <= 0:
                 psec = check.period_sec
                 raise InvalidParamsError(
