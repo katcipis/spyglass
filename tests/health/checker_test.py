@@ -20,7 +20,7 @@ async def test_health_checker_probes_all_checks(httpx_mock):
     period3 = 0.1
 
     checker = HealthChecker(results_handler, [
-        HealthCheck(url=url1, period_sec=period1, matches=["res"]),
+        HealthCheck(url=url1, period_sec=period1, patterns=["res"]),
         HealthCheck(url=url2, period_sec=period2),
         HealthCheck(url=url3, period_sec=period3),
     ])
