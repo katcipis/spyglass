@@ -6,6 +6,7 @@ from health.status import HealthStatus
 from health.publishers import KafkaPublisher
 from config.loaders import load_kafka_config
 
+
 @pytest.mark.asyncio
 async def test_kafka_publisher_publish_success():
     # TODO: Would prefer to automate test topic creation
@@ -29,6 +30,7 @@ async def test_kafka_publisher_publish_success():
         await publisher.publish("http://kakfa-publisher-test", health)
     finally:
         await publisher.stop()
+
 
 def success_health_status():
     return HealthStatus(

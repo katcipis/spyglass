@@ -1,3 +1,5 @@
+import json
+
 from aiokafka import AIOKafkaProducer
 from aiokafka.helpers import create_ssl_context
 
@@ -30,4 +32,20 @@ class KafkaPublisher:
 
     async def publish(self, url, status):
         # TODO: add error handling: https://aiokafka.readthedocs.io/en/stable/api.html#error-handling
-        await self.__producer.send_and_wait(self.__topic, b"TODO")
+        publish_data = {
+            "url": url,
+            "status": {
+                'timestamp': status.timestamp.isoformat(),
+                'healthy': status.healthy,
+                'response_time_ms': status.response_time_ms,
+                'status_code': status.status_code,
+            },
+        }
+        if status.error is not None:
+            publish_data["error"] = {
+                "kind": status.error.kind,
+                "details": status.error.details,
+            }
+
+        serialized = json.dumps(publish_data).encode()
+        await self.__producer.send_and_wait(self.__topic, serialized)
