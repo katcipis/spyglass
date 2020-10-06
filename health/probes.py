@@ -49,9 +49,9 @@ async def http_probe(url, patterns=None):
         try:
             r = await client.get(url)
         except httpx.TimeoutException as err:
-            return _non_http_error(err, HealthErrorKind.TIMEOUT)
+            return _non_http_error(timestamp, err, HealthErrorKind.TIMEOUT)
         except Exception as err:
-            return _non_http_error(err, HealthErrorKind.UNKNOWN)
+            return _non_http_error(timestamp, err, HealthErrorKind.UNKNOWN)
 
         response_time_ms = (time.perf_counter() - start) * 1000
 
@@ -93,9 +93,9 @@ async def http_probe(url, patterns=None):
         )
 
 
-def _non_http_error(err, kind):
+def _non_http_error(timestamp, err, kind):
     return HealthStatus(
-        timestamp="TODO",
+        timestamp=timestamp,
         healthy=False,
         status_code=0,
         response_time_ms=0,
