@@ -1,13 +1,13 @@
 import json
 import logging
 import dateutil.parser
-from datetime import date
 
 from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
 from aiokafka.helpers import create_ssl_context
 from aiokafka.errors import KafkaError, KafkaTimeoutError
 
 from health.status import HealthStatus
+from health.status import HealthError
 
 
 class KafkaPublisher:
@@ -57,7 +57,7 @@ class KafkaPublisher:
 
         msg = json.dumps(publish_data)
         try:
-            self.__log.debug(f"publishing health status '{msg}' on 'self.__topic'")
+            self.__log.debug(f"publishing '{msg}' on 'self.__topic'")
             await self.__producer.send_and_wait(self.__topic, msg.encode())
             self.__log.debug(f"published '{msg}' with success")
         except KafkaTimeoutError:
@@ -107,20 +107,21 @@ class KafkaSubscriber:
                 health_err = None
 
                 if error is not None:
-                    health_err = HealthStatusError(
-                        kind = error["kind"],
-                        details = error["details"],
+                    health_err = HealthError(
+                        kind=error["kind"],
+                        details=error["details"],
                     )
 
                 # WHY: use date-util because python datetime... is bizarre
                 # stack overflow: https://bit.ly/30JwwwC
                 # me isolating the issue: https://bit.ly/36IoOGO
+                timestamp = dateutil.parser.parse(parsed_status["timestamp"])
                 health_status = HealthStatus(
-                    timestamp = dateutil.parser.parse(parsed_status["timestamp"]),
-                    healthy = parsed_status["healthy"],
-                    response_time_ms = parsed_status["response_time_ms"],
-                    status_code = parsed_status["status_code"],
-                    error = health_err,
+                    timestamp=timestamp,
+                    healthy=parsed_status["healthy"],
+                    response_time_ms=parsed_status["response_time_ms"],
+                    status_code=parsed_status["status_code"],
+                    error=health_err,
                 )
 
             except Exception as err:
