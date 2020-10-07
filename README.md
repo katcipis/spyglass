@@ -8,6 +8,7 @@
     - [Running tests](#running-tests)
     - [Linting](#linting)
 - [Configuration](#configuration)
+- [Running](#running)
 - [Why ?](#why-)
     - [Code Style](#code-style)
     - [Containers](#containers)
