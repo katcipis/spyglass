@@ -48,7 +48,7 @@ async def test_kafka_health_pubsub():
         # WHY: To avoid this we need to setup/teardown unique topics
         # For now good enough is to at least find the published health
         # message, which has a timestamp that is hard to be duplicated
-        # (although not impossible).
+        # (although not impossible, so false negatives are possible).
         found_match = False
         results = []
 
