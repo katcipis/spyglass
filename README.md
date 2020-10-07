@@ -105,19 +105,20 @@ development environment provided through **make dev**.
 You can run:
 
 ```sh
-./bin/spy --help
+./bin/spy
 ```
 
 And:
 
 
 ```sh
-./bin/spycollect --help
+./bin/spycollect
 ```
 
-To check usage on each of the tools.
+And if any configuration is missing you should get a helpful message
+about which configurations are missing and what are each of them.
 
-They are also package as Docker images, as a way to enable deployment.
+They are also packaged as Docker images, as a way to enable deployment.
 To build the images you can run:
 
 ```
