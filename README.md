@@ -6,6 +6,8 @@
 - [Development](#development)
     - [Dependencies](#dependencies)
     - [Running tests](#running-tests)
+    - [Linting](#linting)
+- [Configuration](#configuration)
 - [Why ?](#why-)
     - [Code Style](#code-style)
     - [Containers](#containers)
