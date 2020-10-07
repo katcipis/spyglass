@@ -20,7 +20,9 @@
 
 # Spyglass
 
-Spyglass is a monitoring system for websites
+Spyglass is a monitoring system for websites. It is designed as a health
+checker **spy** that given a set of health check targets
+will probe them and send results to a Kafka topic and a 
 
 # Development
 
@@ -89,6 +91,47 @@ Kafka configuration is done through these environment variables:
 * SPYGLASS_KAFKA_SSL_CA : Path to CA file used to sign certificate
 * SPYGLASS_KAFKA_SSL_CERT : Path to signed certificate
 * SPYGLASS_KAFKA_SSL_KEY : Path to private key file
+
+
+# Running
+
+To run the **spy** tool and the **spycollector** you need to
+install all the [dependencies](#dependencies) or used the
+development environment provided through **make dev**.
+
+You can run:
+
+```sh
+./bin/spy --help
+```
+
+And:
+
+
+```sh
+./bin/spycollector --help
+```
+
+To check usage on each of the tools.
+
+They are also package as Docker images, as a way to enable deployment.
+To build the images you can run:
+
+```
+make image
+```
+
+And run:
+
+```
+docker run -ti katcipis/spyglass spy --help
+```
+
+Or:
+
+```
+docker run -ti katcipis/spyglass spycollector --help
+```
 
 
 # Why ?
