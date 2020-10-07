@@ -23,7 +23,9 @@
 
 Spyglass is a monitoring system for websites. It is designed as a health
 checker **spy** that given a set of health check targets
-will probe them and send results to a Kafka topic and a 
+will probe them and send results to a Kafka topic and **spycollect**
+which will subscribe to the same Kakfa topic, read the health status
+messages and save them on PostgreSQL.
 
 # Development
 
@@ -96,7 +98,7 @@ Kafka configuration is done through these environment variables:
 
 # Running
 
-To run the **spy** tool and the **spycollector** you need to
+To run the **spy** tool and the **spycollect** you need to
 install all the [dependencies](#dependencies) or used the
 development environment provided through **make dev**.
 
@@ -110,7 +112,7 @@ And:
 
 
 ```sh
-./bin/spycollector --help
+./bin/spycollect --help
 ```
 
 To check usage on each of the tools.
@@ -131,7 +133,7 @@ docker run -ti katcipis/spyglass spy --help
 Or:
 
 ```
-docker run -ti katcipis/spyglass spycollector --help
+docker run -ti katcipis/spyglass spycollect --help
 ```
 
 
