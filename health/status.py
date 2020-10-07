@@ -1,8 +1,8 @@
 from collections import namedtuple
-from enum import Enum
+from enum import IntEnum
 
 
-class HealthErrorKind(Enum):
+class HealthErrorKind(IntEnum):
     UNKNOWN = 1
     HTTP = 2
     REGEX = 3
