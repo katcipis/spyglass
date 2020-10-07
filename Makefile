@@ -18,7 +18,9 @@ test:
 
 .PHONY: test-integration
 test-integration:
-	pytest ./tests/integration -rs --cov-report term --cov=health
+	# WHY: There is a lot of warnings from aiokafka :-(
+	# So I disabled warnings details on pytest.
+	pytest ./tests/integration -rs --cov-report term --cov=health --disable-pytest-warnings
 
 devimg=spyglass-devenv
 .PHONY: devimage
