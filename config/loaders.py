@@ -38,11 +38,25 @@ def load_kafka_config():
     )
 
     if missing != []:
-        errmsg = "Missing environment variables for Kafka configuration:"
+        errmsg = "\nMissing environment variables for Kafka config:"
         return None, errmsg + "\n\n" + "\n".join(missing)
 
     return KafkaConfig(
         uri=uri, ssl_cafile=cafile, ssl_cert=cert, ssl_keyfile=privkey), None
+
+
+def load_health_check_config():
+    missing = []
+    configpath = _load_from_env(
+        "SPYGLASS_HEALTH_CHECKS_CONFIG",
+        "Path to health checks config file (JSON)",
+        missing,
+    )
+    if missing != []:
+        errmsg = "\nMissing environment variables for health checks config:"
+        return None, errmsg + "\n\n" + "\n".join(missing)
+
+    return configpath, None
 
 
 def _load_from_env(envvar, about, missing):
