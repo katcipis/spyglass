@@ -24,8 +24,8 @@ Spyglass is a monitoring system for websites
 
 ## Dependencies
 
-To run tests and the project itself you will need to have
-installed on your host:
+To run the automation provided in the project through make
+you will need to have installed on your host:
 
 * Make
 * Python >= 3.8
@@ -36,7 +36,7 @@ And run:
 make deps
 ```
 
-Which will install the dependencies on your host, if you want to avoid
+Which will install the dependencies on your host. If you want to avoid
 installing the dependencies on your host and you already have
 [Docker](https://docs.docker.com/) installed you can run:
 
@@ -66,6 +66,14 @@ informed by a skipping test when you run:
 
 ```
 make test-integration
+```
+
+## Linting
+
+To lint the code just run:
+
+```
+make lint
 ```
 
 # Configuration
