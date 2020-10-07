@@ -9,12 +9,6 @@ from config.loaders import load_kafka_config
 
 @pytest.mark.asyncio
 async def test_kafka_publisher_publish_success():
-    # TODO: Would prefer to automate test topic creation
-    # and deletion on teardown. Didn't find any create/delete
-    # topic functionality on aiokafka and was running out of time
-    # (other python kafka libs seem to have these features).
-    # Preferred to just depend on a pre-created topic for now
-    # (but not feeling happy about it).
     cfg, err = load_kafka_config()
     if err is not None:
         pytest.skip(f"test requires kafka configuration:\n{err}")

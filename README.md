@@ -1,8 +1,28 @@
+<!-- mdtocstart -->
+
+# Table of Contents
+
+- [Spyglass](#spyglass)
+- [Development](#development)
+    - [Dependencies](#dependencies)
+    - [Running tests](#running-tests)
+- [Why ?](#why-)
+    - [Code Style](#code-style)
+    - [Containers](#containers)
+    - [Make](#make)
+    - [Time Sensitive Tests](#time-sensitive-tests)
+    - [TODO's](#todos)
+        - [Integration Tests](#integration-tests)
+
+<!-- mdtocend -->
+
 # Spyglass
 
 Spyglass is a monitoring system for websites
 
-# Dependencies
+# Development
+
+## Dependencies
 
 To run tests and the project itself you will need to have
 installed on your host:
@@ -27,11 +47,46 @@ make dev
 And you will get an interactive shell inside a container with all
 dependencies already installed.
 
+
+## Running tests
+
+Running unit tests is pretty straightforward, just run:
+
+```
+make test
+```
+
+Integration tests are more involved, they depend on configuration
+(through environment variables) and also on pre-existing resources,
+like kafka topics and database schemas.
+
+See [configuration](#configuration) for more details on how to
+do the configuration. Any missing config should be explicitly
+informed by a skipping test when you run:
+
+```
+make test-integration
+```
+
+# Configuration
+
+Configuration, both for production ready artifacts and integration
+tests, is done through environment variables.
+
+Kafka configuration is done through these environment variables:
+
+* SPYGLASS_KAFKA_URI : URI used to connect on kafka
+* SPYGLASS_KAFKA_SSL_CA : Path to CA file used to sign certificate
+* SPYGLASS_KAFKA_SSL_CERT : Path to signed certificate
+* SPYGLASS_KAFKA_SSL_KEY : Path to private key file
+
+
 # Why ?
 
 On this section I describe the reasoning of some of the design
 decisions. It has been 2 years since I don't work continuously in
 production with Python, so this has been an interesting exercise :-).
+
 
 ## Code Style
 
@@ -96,3 +151,17 @@ logic, some bugs can still slip through.
 
 This is not the same as tests that required some sort of synchronization but
 instead an sleep was added and "it just works", I really hate that kind of stuff.
+
+## TODO's
+
+Some things that I ended up doing in a way that didn't made much happy but I
+did it anyway because I wanted to finish it in time (prioritization).
+
+### Integration Tests
+
+On the kafka integration test I Would prefer to automate test
+topic creation and deletion on teardown. Didn't find any create/delete
+topic functionality on aiokafka and was running out of time
+(other python sync kafka libs seemed to have these features).
+Preferred to just depend on a pre-created topic for now
+(but not feeling happy about it).
