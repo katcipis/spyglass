@@ -50,7 +50,7 @@ class KafkaPublisher:
             },
         }
         if status.error is not None:
-            publish_data["error"] = {
+            publish_data["status"]["error"] = {
                 "kind": status.error.kind,
                 "details": status.error.details,
             }
@@ -128,5 +128,7 @@ class KafkaSubscriber:
                 self.__log.error(f"dropping invalid '{msg}'")
                 self.__log.error(f"error '{err}' parsing msg '{msg.value}'")
 
-            self.__log.debug(f"got msg: {msg}")
+            self.__log.debug(f"got health status: '{url}' '{health_status}'")
             return url, health_status
+
+        raise StopAsyncIteration

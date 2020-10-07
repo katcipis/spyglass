@@ -4,6 +4,8 @@ from datetime import datetime
 from datetime import timezone
 
 from health.status import HealthStatus
+from health.status import HealthError
+from health.status import HealthErrorKind
 from health.pubsub import KafkaPublisher
 from health.pubsub import KafkaSubscriber
 from config.loaders import load_kafka_config
@@ -25,10 +27,15 @@ async def test_kafka_health_pubsub():
         cfg.uri, cfg.ssl_cafile, cfg.ssl_cert, cfg.ssl_keyfile, test_topic)
 
     url = "http://kafka-publisher-test"
-    health = success_health_status()
+    expected_messages = [
+        success_health_status(),
+        failure_health_status(),
+    ]
+
     try:
         await publisher.start()
-        await publisher.publish(url, health)
+        for msg in expected_messages:
+            await publisher.publish(url, msg)
     finally:
         await publisher.stop()
 
@@ -49,16 +56,22 @@ async def test_kafka_health_pubsub():
         # For now good enough is to at least find the published health
         # message, which has a timestamp that is hard to be duplicated
         # (although not impossible, so false negatives are possible).
-        found_match = False
-        results = []
+        unexpected_res = []
 
         async for got_url, got_health_status in subscriber:
-            if got_url == url and got_health_status == health:
-                found_match = True
-                break
-            results.append((got_url, got_health_status))
+            if got_url == url and got_health_status in expected_messages:
+                expected_messages.remove(got_health_status)
+                if len(expected_messages) == 0:
+                    break
+                continue
+            unexpected_res.append((got_url, got_health_status))
 
-        assert found_match, f"no match for '{url} {health}' on '{results}'"
+        if len(expected_messages) > 0:
+            e = "unable to find msgs:\n{0}\nunknown msgs:\n{1}\n".format(
+                expected_messages,
+                unexpected_res,
+            )
+            pytest.fail(e)
 
     finally:
         task.cancel()
@@ -72,4 +85,17 @@ def success_health_status():
         response_time_ms=50,
         status_code=200,
         error=None,
+    )
+
+
+def failure_health_status():
+    return HealthStatus(
+        timestamp=datetime.now(timezone.utc),
+        healthy=False,
+        response_time_ms=50,
+        status_code=400,
+        error=HealthError(
+            kind=HealthErrorKind.HTTP,
+            details=["some detail"],
+        ),
     )
