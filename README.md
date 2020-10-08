@@ -291,3 +291,12 @@ Preferred to just depend on a pre-created topic for now
 Since I'm very used to packaging things with Docker and never packaged
 anything using python setup.py/egg/etc I ended up packaging only
 with docker (again, timeout).
+
+
+### Cool Queries
+
+In a production project I would add some more tools to query the
+database, making it easier to check the data being saved on
+the database manually. But I run out of time when I finished the
+database integration, the further I was able to go is provide
+a tool to setup the database schema (at least).
