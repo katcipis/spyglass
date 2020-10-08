@@ -1,4 +1,4 @@
-export PYTHONPATH := `pwd/src`:$(PYTHONPATH)
+export PYTHONPATH := $(shell pwd)/src
 
 .PHONY: all
 all: lint test
