@@ -103,6 +103,11 @@ def load_postgresql_config():
     return PostgreSQLConfig(uri=uri), None
 
 
+def load_log_level():
+    val = os.environ.get("SPYGLASS_LOG_LEVEL", "debug")
+    return val.upper()
+
+
 def _load_from_env(envvar, about, missing):
     val = os.environ.get(envvar)
     if val is None:

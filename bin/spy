@@ -5,12 +5,18 @@ import asyncio
 import logging
 
 from config.loaders import load_kafka_config
+from config.loaders import load_log_level
 from config.loaders import load_health_check_config
 from health.pubsub import KafkaPublisher
 from health.checker import HealthChecker
 
 
 async def main():
+
+    level = load_log_level()
+    log = logging.getLogger("spy")
+    log.setLevel(level)
+
     errs = []
 
     kafka_cfg, err = load_kafka_config()
@@ -27,8 +33,6 @@ async def main():
         kafka_cfg.ssl_cert,
         kafka_cfg.ssl_keyfile,
     )
-
-    log = logging.getLogger("spy")
 
     try:
         log.debug(f"starting kafka publisher uri: {kafka_cfg.uri}")

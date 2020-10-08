@@ -38,7 +38,7 @@ CREATE TYPE error_kind AS ENUM ('unknown', 'http', 'regex', 'timeout');
 
 def health_check_table():
     return """
-CREATE TABLE spyglass_health_status_test4 (
+CREATE TABLE spyglass_health_status_test5 (
     timestamp        timestamp without time zone,
     website          text,
     path             text,
@@ -46,8 +46,9 @@ CREATE TABLE spyglass_health_status_test4 (
     status_code      smallint,
     response_time_ms integer,
     error_kind       error_kind,
+    error_details    text,
     PRIMARY KEY(timestamp, website, path)
-) PARTITION BY RANGE (timestamp);
+);
     """
 
 if __name__ == "__main__":
