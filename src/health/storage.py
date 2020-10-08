@@ -40,10 +40,9 @@ class PostgreSQLStore:
                         status_code,
                         response_time_ms
                         ) VALUES($1, $2, $3, $4, $5, $6)
-                    ''', timestamp, domain, path,
-                         health_status.healthy,
-                         health_status.status_code,
-                         health_status.response_time_ms)
+                    ''', timestamp, domain, path, health_status.healthy,
+                                          health_status.status_code,
+                                          health_status.response_time_ms)
                 return
 
             # Not the nicest way to represent list of values... Probably
@@ -62,12 +61,11 @@ class PostgreSQLStore:
                     error_kind,
                     error_details
                     ) VALUES($1, $2, $3, $4, $5, $6, $7, $8)
-            ''', timestamp, domain, path,
-                health_status.healthy,
-                health_status.status_code,
-                health_status.response_time_ms,
-                error_kind,
-                error_details)
+            ''', timestamp, domain, path, health_status.healthy,
+                                      health_status.status_code,
+                                      health_status.response_time_ms,
+                                      error_kind,
+                                      error_details)
 
         except asyncpg.exceptions.UniqueViolationError:
             self.__log.warning(
