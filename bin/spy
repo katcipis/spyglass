@@ -9,8 +9,6 @@ from config.loaders import load_health_check_config
 from health.pubsub import KafkaPublisher
 from health.checker import HealthChecker
 
-log = logging.getLogger(__name__)
-
 
 async def main():
     errs = []
