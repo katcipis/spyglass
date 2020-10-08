@@ -53,6 +53,7 @@ async def main():
                 # can be just lost (although they remain on the kafka
                 # topic for some time).
                 log.error(f"error storing health message: {err}")
+                raise
 
     finally:
         await subscriber.stop()

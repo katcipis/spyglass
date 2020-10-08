@@ -2,6 +2,8 @@ import asyncpg
 import logging
 from urllib.parse import urlparse
 
+from health.status import HealthErrorKind
+
 
 class PostgreSQLStore:
     "Stores health checks on a SQL database"
@@ -24,26 +26,51 @@ class PostgreSQLStore:
         path = parsed_url.path + parsed_url.query
         timestamp = health_status.timestamp.replace(tzinfo=None)
 
-        # TODO: FIX DEFAULT TABLE NAME
-        # response_time_ms integer,
-        # error_kind       error_kind,
-        # error_details    text,
         try:
+            if health_status.error is None:
+                await self.__conn.execute('''
+                    INSERT INTO spyglass_health_status(
+                        timestamp,
+                        website,
+                        path,
+                        healthy,
+                        status_code,
+                        response_time_ms
+                        ) VALUES($1, $2, $3, $4, $5, $6)
+                ''', timestamp, domain, path,
+                    health_status.healthy,
+                    health_status.status_code,
+                    health_status.response_time_ms,
+                )
+                return
+
+            # Not the nicest way to represent list of values... Probably
+            # Almost out of time at this point :-(
+            error_details = ",".join(health_status.error.details)
+            error_kind = error_kind_to_db_enum(health_status.error.kind)
+
             await self.__conn.execute('''
-                INSERT INTO spyglass_health_status_test5(
+                INSERT INTO spyglass_health_status(
                     timestamp,
                     website,
                     path,
                     healthy,
-                    status_code
-                    ) VALUES($1, $2, $3, $4, $5)
+                    status_code,
+                    response_time_ms,
+                    error_kind,
+                    error_details
+                    ) VALUES($1, $2, $3, $4, $5, $6, $7, $8)
             ''', timestamp, domain, path,
                 health_status.healthy,
                 health_status.status_code,
+                health_status.response_time_ms,
+                error_kind,
+                error_details,
             )
+
         except asyncpg.exceptions.UniqueViolationError:
             self.__log.warning(
-                f"discarding duplicated health status {url} {status}")
+                f"discarding duplicated health status {url} {health_status}")
 
 
     async def disconnect(self):
@@ -51,3 +78,13 @@ class PostgreSQLStore:
             return
         await self.__conn.close()
         self.__conn = None
+
+
+def error_kind_to_db_enum(kind):
+    if kind == HealthErrorKind.HTTP:
+        return "http"
+    if kind == HealthErrorKind.REGEX:
+        return "regex"
+    if kind == HealthErrorKind.TIMEOUT:
+        return "timeout"
+    return "unknown"
