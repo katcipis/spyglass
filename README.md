@@ -14,6 +14,7 @@
     - [Containers](#containers)
     - [Make](#make)
     - [Time Sensitive Tests](#time-sensitive-tests)
+    - [Storage](#storage)
     - [TODO's](#todos)
         - [Integration Tests](#integration-tests)
 
@@ -208,6 +209,13 @@ logic, some bugs can still slip through.
 
 This is not the same as tests that required some sort of synchronization but
 instead an sleep was added and "it just works", I really hate that kind of stuff.
+
+
+## Storage
+
+All storage related code (PostgreSQL) is not tested at all, the reason
+is that I ran out of time :-(.
+
 
 ## TODO's
 
