@@ -1,0 +1,60 @@
+#!/usr/bin/env python
+
+import sys
+import asyncio
+import logging
+
+from config.loaders import load_kafka_config
+from config.loaders import load_health_check_config
+from health.pubsub import KafkaPublisher
+from health.checker import HealthChecker
+
+
+async def main():
+    errs = []
+
+    kafka_cfg, err = load_kafka_config()
+    errs.append(err)
+
+    checks, err = load_health_check_config()
+    errs.append(err)
+
+    abort_on_err(errs)
+
+    publisher = KafkaPublisher(
+        kafka_cfg.uri,
+        kafka_cfg.ssl_cafile,
+        kafka_cfg.ssl_cert,
+        kafka_cfg.ssl_keyfile,
+    )
+
+    log = logging.getLogger("spy")
+
+    try:
+        log.debug(f"starting kafka publisher uri: {kafka_cfg.uri}")
+        await publisher.start()
+        checker = HealthChecker(publisher.publish, checks)
+        log.debug(f"kafka started, starting health checker")
+        tasks = checker.start()
+        log.debug(f"health checker started, probing will start")
+        await asyncio.gather(*tasks)
+        log.error(f"health checker stopped, this was not expected")
+
+    finally:
+        await publisher.stop()
+
+def abort_on_err(errs):
+    fail = False
+    for err in errs:
+        if err is None:
+            continue
+        fail = True
+        print(err)
+
+    if fail:
+        print()
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

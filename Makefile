@@ -1,4 +1,4 @@
-export PYTHONPATH := `pwd`:$(PYTHONPATH)
+export PYTHONPATH := $(shell pwd)/src
 
 .PHONY: all
 all: lint test
@@ -15,6 +15,10 @@ lint:
 .PHONY: test
 test:
 	pytest ./tests/unit --cov-report term --cov=health
+
+.PHONY: test-setup
+test-setup:
+	python setup.py check
 
 .PHONY: test-integration
 test-integration:

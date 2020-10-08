@@ -1,5 +1,8 @@
 import os
+import json
 from collections import namedtuple
+
+from health.checker import HealthCheck
 
 
 KafkaConfig = namedtuple('KafkaConfig', [
@@ -38,11 +41,41 @@ def load_kafka_config():
     )
 
     if missing != []:
-        errmsg = "Missing environment variables for Kafka configuration:"
+        errmsg = "\nMissing environment variables for Kafka config:"
         return None, errmsg + "\n\n" + "\n".join(missing)
 
     return KafkaConfig(
         uri=uri, ssl_cafile=cafile, ssl_cert=cert, ssl_keyfile=privkey), None
+
+
+def load_health_check_config():
+    missing = []
+    cfgpath = _load_from_env(
+        "SPYGLASS_HEALTH_CHECKS_CONFIG",
+        "Path to health checks config file (JSON)",
+        missing,
+    )
+
+    if missing != []:
+        errmsg = "\nMissing environment variables for health checks config:"
+        return None, errmsg + "\n\n" + "\n".join(missing)
+
+    try:
+        with open(cfgpath, "r") as cfgfile:
+            parsed_cfg = json.loads(cfgfile.read())
+            checks = []
+            for probe in parsed_cfg["probes"]:
+                checks.append(HealthCheck(
+                    url=probe["url"],
+                    period_sec=probe["period_sec"],
+                    patterns=probe.get("patterns", []),
+                    )
+                )
+            return checks, None
+
+    except Exception as err:
+        m = f"\nError reading/parsing configuration:'{cfgpath}':\n{err}\n"
+        return None, m
 
 
 def _load_from_env(envvar, about, missing):

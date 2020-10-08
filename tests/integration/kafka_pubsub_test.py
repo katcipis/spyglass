@@ -45,7 +45,8 @@ async def test_kafka_health_pubsub():
 
         async def stop_subscriber():
             # WHY: subscriber can stay waiting for messages
-            # for a long time in error scenarios.
+            # for a long time in error scenarios, so we force
+            # a timeout.
             await asyncio.sleep(test_timeout_sec)
             await subscriber.stop()
             pytest.fail("timeout exceeded waiting for message on subscriber")

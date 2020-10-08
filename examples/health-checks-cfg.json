@@ -1,0 +1,13 @@
+{
+    "probes": [
+        {
+            "url": "https://google.com",
+            "period_sec": 10
+        },
+        {
+            "url": "https://katcipis.github.io",
+            "period_sec": 15,
+            "patterns" : ["katcipis", "define"]
+        }
+    ]
+}
