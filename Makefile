@@ -20,6 +20,10 @@ test:
 test-setup:
 	python setup.py check
 
+.PHONY: test-setup
+setup-database:
+	./tools/setup-database
+
 .PHONY: test-integration
 test-integration:
 	# WHY: There is a lot of warnings from aiokafka :-(

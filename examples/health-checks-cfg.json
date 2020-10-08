@@ -8,6 +8,11 @@
             "url": "https://katcipis.github.io",
             "period_sec": 15,
             "patterns" : ["katcipis", "define"]
+        },
+        {
+            "url": "https://katcipis.github.io",
+            "period_sec": 30,
+            "patterns" : ["kawabunga-should-fail"]
         }
     ]
 }

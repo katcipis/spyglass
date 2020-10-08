@@ -5,12 +5,26 @@ import asyncio
 import logging
 
 from config.loaders import load_kafka_config
+from config.loaders import load_postgresql_config
+from config.loaders import load_log_level
 from health.pubsub import KafkaSubscriber
+from health.storage import PostgreSQLStore
 
 
 async def main():
+    level = load_log_level()
+    logging.basicConfig()
+    logging.getLogger().setLevel(level)
+    log = logging.getLogger("spycollect")
+
+    errs = []
+
     kafka_cfg, err = load_kafka_config()
-    #TODO: load postgresql config
+    errs.append(err)
+
+    pgcfg, err = load_postgresql_config()
+    errs.append(err)
+
     abort_on_err([err])
 
     subscriber = KafkaSubscriber(
@@ -20,16 +34,30 @@ async def main():
         kafka_cfg.ssl_keyfile,
     )
 
-    log = logging.getLogger("spycollect")
+    store = PostgreSQLStore(pgcfg.uri)
 
     try:
         log.debug(f"starting kafka subscriber uri: {kafka_cfg.uri}")
         await subscriber.start()
+        await store.connect()
+
         async for url, status in subscriber:
-            print("TODO:Storage", url, status)
+            log.debug("received health status, storing it")
+            try:
+                await store.save(url, status)
+                log.debug("saved health status with success")
+                print("saved health status with success") #remove
+            except Exception as err:
+                # FIXME: instead of discarding the message should model
+                # ack and just ack the status message if it was
+                # successfully stored on the database. This way messages
+                # can be just lost (although they remain on the kafka
+                # topic for some time).
+                log.error(f"error storing health message: {err}")
 
     finally:
         await subscriber.stop()
+        await store.disconnect()
 
 def abort_on_err(errs):
     fail = False

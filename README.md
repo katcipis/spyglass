@@ -14,6 +14,7 @@
     - [Containers](#containers)
     - [Make](#make)
     - [Time Sensitive Tests](#time-sensitive-tests)
+    - [Storage](#storage)
     - [TODO's](#todos)
         - [Integration Tests](#integration-tests)
 
@@ -88,12 +89,28 @@ make lint
 Configuration, both for production ready artifacts and integration
 tests, is done through environment variables.
 
+Both **spy** and **spycollect** can have their logging level configured
+through the environment variable:
+
+* SPYGLASS_LOG_LEVEL : Log level : ("debug", "info", "warning", "error")
+
+Both **spy** and **spycollect** depend on Kafka and its configuration.
 Kafka configuration is done through these environment variables:
 
 * SPYGLASS_KAFKA_URI : URI used to connect on kafka
 * SPYGLASS_KAFKA_SSL_CA : Path to CA file used to sign certificate
 * SPYGLASS_KAFKA_SSL_CERT : Path to signed certificate
 * SPYGLASS_KAFKA_SSL_KEY : Path to private key file
+
+**spycollect** needs storage to save health status, it
+uses PostgreSQL for that.
+
+PostgreSQL configuration is done through these environment variables:
+
+* SPYGLASS_POSTGRESQL_URI : URI used to connect on PostgreSQL
+
+If the configuration has been done properly, just running **spy** and
+**spycollect** should work.
 
 
 # Running
@@ -137,6 +154,21 @@ Or:
 docker run -ti katcipis/spyglass spycollect --help
 ```
 
+## Setup Database
+
+If the database is not set you can run:
+
+```
+make setup-database
+```
+
+To setup the database that will be used by **spycollect**, it will
+create all required tables. It won't create the configured database,
+the database must already exist.
+
+The setup is idempotent, if the tables already exist no side effect
+is generated.
+
 
 # Why ?
 
@@ -160,6 +192,7 @@ because it is what I used on the past and it worked well (for my needs at least)
 Regarding testing also got some ideas from
 [Good Integration Practices](https://docs.pytest.org/en/latest/goodpractices.html).
 
+
 ## Containers
 
 I tried to not impose the use of containers and docker on the project and
@@ -172,6 +205,7 @@ I ended up using containers because I always worked with more than one
 language and I like how containers allow me to address the isolation
 problem consistently (just one tool).
 
+
 ## Make
 
 Why use make ? It is related to the consistency/multiple languages argument
@@ -182,6 +216,7 @@ so it didn't made a difference if it used containers or not, or the tools
 used for testing. The experience for moving across projects were more smooth
 than previous projects I worked where you ended up having to read a lot of
 docs just to understand how to run basic things like tests.
+
 
 ## Time Sensitive Tests
 
@@ -209,10 +244,32 @@ logic, some bugs can still slip through.
 This is not the same as tests that required some sort of synchronization but
 instead an sleep was added and "it just works", I really hate that kind of stuff.
 
+
+## Storage
+
+All storage related code (PostgreSQL) is not tested at all, the reason
+is that I ran out of time :-(.
+
+Design wise, it seemed like a good idea to partition the table by timestamp,
+at least from what I understood reading about it
+[here](https://www.postgresql.org/docs/11/ddl-partitioning.html), but I abandoned
+the idea since I got some nasty partitioning related errors and I was running
+out of time :-(.
+
+For the timestamp type, by looking [here](https://www.postgresql.org/docs/9.1/datatype-datetime.html)
+it seemed like the best option is "timestamp without time zone" since my
+idea is to normalize on UTC always, so no need to store redundant time zone
+information (it should always be UTC).
+
+Also decided that what makes a unique entry is timestamp/domain/path and
+avoid having duplicated entries (discard duplicates/idempotency).
+
+
 ## TODO's
 
 Some things that I ended up doing in a way that didn't made much happy but I
 did it anyway because I wanted to finish it in time (prioritization).
+
 
 ### Integration Tests
 

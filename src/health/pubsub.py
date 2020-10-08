@@ -1,6 +1,7 @@
 import json
 import logging
 import dateutil.parser
+from datetime import timezone
 
 from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
 from aiokafka.helpers import create_ssl_context
@@ -115,7 +116,10 @@ class KafkaSubscriber:
                 # WHY: use date-util because python datetime... is bizarre
                 # stack overflow: https://bit.ly/30JwwwC
                 # me isolating the issue: https://bit.ly/36IoOGO
+                # Also, don't know why, info about the timezone is being
+                # lost (string has +00:00 in the end), so I force UTC.
                 timestamp = dateutil.parser.parse(parsed_status["timestamp"])
+                timestamp = timestamp.replace(tzinfo=timezone.utc)
                 health_status = HealthStatus(
                     timestamp=timestamp,
                     healthy=parsed_status["healthy"],
