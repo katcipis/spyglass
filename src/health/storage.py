@@ -25,8 +25,6 @@ class PostgreSQLStore:
         timestamp = health_status.timestamp.replace(tzinfo=None)
 
         # TODO: FIX DEFAULT TABLE NAME
-        # healthy          boolean,
-        # status_code      smallint,
         # response_time_ms integer,
         # error_kind       error_kind,
         # error_details    text,
@@ -35,8 +33,14 @@ class PostgreSQLStore:
                 INSERT INTO spyglass_health_status_test5(
                     timestamp,
                     website,
-                    path) VALUES($1, $2, $3)
-            ''', timestamp, domain, path)
+                    path,
+                    healthy,
+                    status_code
+                    ) VALUES($1, $2, $3, $4, $5)
+            ''', timestamp, domain, path,
+                health_status.healthy,
+                health_status.status_code,
+            )
         except asyncpg.exceptions.UniqueViolationError:
             self.__log.warning(
                 f"discarding duplicated health status {url} {status}")

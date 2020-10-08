@@ -53,7 +53,10 @@ async def http_probe(url, patterns=None):
         except Exception as err:
             return _non_http_error(timestamp, err, HealthErrorKind.UNKNOWN)
 
-        response_time_ms = (time.perf_counter() - start) * 1000
+        response_time_ms = int((time.perf_counter() - start) * 1000)
+        if response_time_ms == 0:
+            # Happens on tests, maybe there is a website that fast ? =P
+            response_time_ms = 1
 
         if not (r.status_code >= 200 and r.status_code < 300):
             return HealthStatus(
