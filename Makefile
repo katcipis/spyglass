@@ -16,6 +16,10 @@ lint:
 test:
 	pytest ./tests/unit --cov-report term --cov=health
 
+.PHONY: test-setup
+test-setup:
+	python setup.py check
+
 .PHONY: test-integration
 test-integration:
 	# WHY: There is a lot of warnings from aiokafka :-(

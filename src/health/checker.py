@@ -76,14 +76,21 @@ class HealthChecker:
 
         Calling start on a checker that is already started
         will be ignored.
+
+        The created asyncio tasks will be returned, so the caller can
+        use them to wait for completion, although in a normal scenario
+        the tasks will never finish (unless the stop method is called).
         """
         if self.__run:
             return
 
         self.__run = True
 
+        tasks = []
         for check in self.__checks:
-            asyncio.create_task(self.__probe_scheduler(check))
+            tasks.append(asyncio.create_task(self.__probe_scheduler(check)))
+
+        return tasks
 
     def stop(self):
         """
