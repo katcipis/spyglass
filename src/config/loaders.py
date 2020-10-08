@@ -8,6 +8,8 @@ from health.checker import HealthCheck
 KafkaConfig = namedtuple('KafkaConfig', [
     'uri', 'ssl_cafile', 'ssl_cert', 'ssl_keyfile'])
 
+PostgreSQLConfig = namedtuple('PostgreSQL', [ 'uri', 'database' ])
+
 
 def load_kafka_config():
     """
@@ -76,6 +78,34 @@ def load_health_check_config():
     except Exception as err:
         m = f"\nError reading/parsing configuration:'{cfgpath}':\n{err}\n"
         return None, m
+
+
+def load_postgresql_config():
+    """
+    Loads postgresql related config from the environment.
+
+    If any configuration is missing an informational string
+    is returned as a second return value, it can be used to
+    provide help to the caller.
+    """
+
+    missing = []
+    uri = _load_from_env(
+        "SPYGLASS_POSTGRESQL_URI",
+        "URI used to connect on PostgreSQL",
+        missing,
+    )
+    database = _load_from_env(
+        "SPYGLASS_POSTGRESQL_DATABASE",
+        "PostgreSQL database where data will be stored",
+        missing,
+    )
+
+    if missing != []:
+        errmsg = "\nMissing environment variables for postgresql config:"
+        return None, errmsg + "\n\n" + "\n".join(missing)
+
+    return PostgreSQLConfig(uri=uri, database=database), None
 
 
 def _load_from_env(envvar, about, missing):

@@ -89,12 +89,29 @@ make lint
 Configuration, both for production ready artifacts and integration
 tests, is done through environment variables.
 
+Both **spy** and **spycollect** can have their logging level configured
+through the environment variable:
+
+* SPYGLASS_LOG_LEVEL : Log level : ("debug", "info", "warning", "error")
+
+Both **spy** and **spycollect** depend on Kafka and its configuration.
 Kafka configuration is done through these environment variables:
 
 * SPYGLASS_KAFKA_URI : URI used to connect on kafka
 * SPYGLASS_KAFKA_SSL_CA : Path to CA file used to sign certificate
 * SPYGLASS_KAFKA_SSL_CERT : Path to signed certificate
 * SPYGLASS_KAFKA_SSL_KEY : Path to private key file
+
+**spycollect** needs storage to save health status, it
+uses PostgreSQL for that.
+
+PostgreSQL configuration is done through these environment variables:
+
+* SPYGLASS_POSTGRESQL_URI : URI used to connect on PostgreSQL
+* SPYGLASS_POSTGRESQL_DATABASE" : PostgreSQL database where data will be stored
+
+If the configuration has been done properly, just running **spy** and
+**spycollect** should work.
 
 
 # Running
@@ -137,6 +154,17 @@ Or:
 ```
 docker run -ti katcipis/spyglass spycollect --help
 ```
+
+## Setup Database
+
+If the database is not set you can run:
+
+```
+make setup-database
+```
+
+To setup the database that will be used by **spycollect**, it will
+create all required tables.
 
 
 # Why ?
