@@ -5,6 +5,10 @@ from urllib.parse import urlparse
 from health.status import HealthErrorKind
 
 
+class PostgreSQLStoreError(Exception):
+    pass
+
+
 class PostgreSQLStore:
     "Stores health checks on a SQL database"
 
@@ -12,14 +16,13 @@ class PostgreSQLStore:
         self.__uri = uri
         self.__log = logging.getLogger(f"{__name__}.SQLStore")
 
-
     async def connect(self):
         self.__conn = await asyncpg.connect(self.__uri)
 
-
     async def save(self, url, health_status):
         if self.__conn is None:
-            raise PostgreSQLStoreError("trying to save but not connected to db")
+            raise PostgreSQLStoreError(
+                "trying to save but not connected to db")
 
         parsed_url = urlparse(url)
         domain = parsed_url.netloc
@@ -37,11 +40,10 @@ class PostgreSQLStore:
                         status_code,
                         response_time_ms
                         ) VALUES($1, $2, $3, $4, $5, $6)
-                ''', timestamp, domain, path,
-                    health_status.healthy,
-                    health_status.status_code,
-                    health_status.response_time_ms,
-                )
+                    ''', timestamp, domain, path,
+                         health_status.healthy,
+                         health_status.status_code,
+                         health_status.response_time_ms)
                 return
 
             # Not the nicest way to represent list of values... Probably
@@ -65,13 +67,11 @@ class PostgreSQLStore:
                 health_status.status_code,
                 health_status.response_time_ms,
                 error_kind,
-                error_details,
-            )
+                error_details)
 
         except asyncpg.exceptions.UniqueViolationError:
             self.__log.warning(
                 f"discarding duplicated health status {url} {health_status}")
-
 
     async def disconnect(self):
         if self.__conn is None:

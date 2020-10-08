@@ -8,7 +8,7 @@ from health.checker import HealthCheck
 KafkaConfig = namedtuple('KafkaConfig', [
     'uri', 'ssl_cafile', 'ssl_cert', 'ssl_keyfile'])
 
-PostgreSQLConfig = namedtuple('PostgreSQLConfig', [ 'uri' ])
+PostgreSQLConfig = namedtuple('PostgreSQLConfig', ['uri'])
 
 
 def load_kafka_config():

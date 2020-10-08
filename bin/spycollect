@@ -13,6 +13,7 @@ from health.storage import PostgreSQLStore
 
 async def main():
     level = load_log_level()
+    logging.basicConfig()
     logging.getLogger().setLevel(level)
     log = logging.getLogger("spycollect")
 

@@ -14,6 +14,7 @@ from health.checker import HealthChecker
 async def main():
 
     level = load_log_level()
+    logging.basicConfig()
     log = logging.getLogger("spy")
     log.setLevel(level)
 
