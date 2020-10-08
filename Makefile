@@ -38,3 +38,8 @@ devimage:
 .PHONY: dev
 dev: devimage
 	docker run -v `pwd`:/app --rm -ti --entrypoint /bin/bash $(devimg)
+
+version?=latest
+.PHONY: image
+image:
+	docker build . -t katcipis/spyglass:$(version)
