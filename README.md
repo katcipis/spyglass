@@ -164,7 +164,11 @@ make setup-database
 ```
 
 To setup the database that will be used by **spycollect**, it will
-create all required tables.
+create all required tables. It won't create the configured database,
+the database must already exist.
+
+The setup is idempotent, if the tables already exist no side effect
+is generated.
 
 
 # Why ?
@@ -189,6 +193,7 @@ because it is what I used on the past and it worked well (for my needs at least)
 Regarding testing also got some ideas from
 [Good Integration Practices](https://docs.pytest.org/en/latest/goodpractices.html).
 
+
 ## Containers
 
 I tried to not impose the use of containers and docker on the project and
@@ -201,6 +206,7 @@ I ended up using containers because I always worked with more than one
 language and I like how containers allow me to address the isolation
 problem consistently (just one tool).
 
+
 ## Make
 
 Why use make ? It is related to the consistency/multiple languages argument
@@ -211,6 +217,7 @@ so it didn't made a difference if it used containers or not, or the tools
 used for testing. The experience for moving across projects were more smooth
 than previous projects I worked where you ended up having to read a lot of
 docs just to understand how to run basic things like tests.
+
 
 ## Time Sensitive Tests
 
@@ -249,6 +256,7 @@ is that I ran out of time :-(.
 
 Some things that I ended up doing in a way that didn't made much happy but I
 did it anyway because I wanted to finish it in time (prioritization).
+
 
 ### Integration Tests
 
