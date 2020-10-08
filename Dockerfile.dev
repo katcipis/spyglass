@@ -1,6 +1,6 @@
 FROM python:3.8.6-buster
 
-ENV PYTHONPATH="/app:${PYTHONPATH}"
+ENV PYTHONPATH="/app/src:${PYTHONPATH}"
 
 WORKDIR /app
 

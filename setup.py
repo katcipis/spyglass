@@ -12,5 +12,6 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/katcipis/spyglass",
     packages=find_packages(),
+    scripts=['bin/spy', 'bin/spycollect'],
     python_requires='>=3.8',
 )
