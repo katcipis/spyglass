@@ -13,8 +13,8 @@ from health.storage import PostgreSQLStore
 
 async def main():
     level = load_log_level()
+    logging.getLogger().setLevel(level)
     log = logging.getLogger("spycollect")
-    log.setLevel(level)
 
     errs = []
 
@@ -44,6 +44,8 @@ async def main():
             log.debug("received health status, storing it")
             try:
                 await store.save(url, status)
+                log.debug("saved health status with success")
+                print("saved health status with success") #remove
             except Exception as err:
                 # FIXME: instead of discarding the message should model
                 # ack and just ack the status message if it was
@@ -51,7 +53,6 @@ async def main():
                 # can be just lost (although they remain on the kafka
                 # topic for some time).
                 log.error(f"error storing health message: {err}")
-                raise err #REMOVE
 
     finally:
         await subscriber.stop()

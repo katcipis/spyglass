@@ -25,18 +25,21 @@ class PostgreSQLStore:
         timestamp = health_status.timestamp.replace(tzinfo=None)
 
         # TODO: FIX DEFAULT TABLE NAME
-
-        # timestamp        timestamp without time zone,
-        # website          text,
-        # path             text,
         # healthy          boolean,
         # status_code      smallint,
         # response_time_ms integer,
         # error_kind       error_kind,
         # error_details    text,
-        await self.__conn.execute('''
-            INSERT INTO spyglass_health_status_test5(timestamp, website, path) VALUES($1, $2, $3)
-        ''', timestamp, domain, path)
+        try:
+            await self.__conn.execute('''
+                INSERT INTO spyglass_health_status_test5(
+                    timestamp,
+                    website,
+                    path) VALUES($1, $2, $3)
+            ''', timestamp, domain, path)
+        except asyncpg.exceptions.UniqueViolationError:
+            self.__log.warning(
+                f"discarding duplicated health status {url} {status}")
 
 
     async def disconnect(self):
