@@ -16,24 +16,37 @@ async def main():
 
     conn = await asyncpg.connect(cfg.uri)
     # # Execute a statement to create a new table.
-    print("creating health check table")
     try:
+        print("creating health error kind enum")
+        await conn.execute(health_error_kind_enum())
+    except asyncpg.exceptions.DuplicateObjectError:
+        print("health check error_kind enum already exists")
+
+    try:
+        print("creating health check table")
         await conn.execute(health_check_table())
     except asyncpg.exceptions.DuplicateTableError:
-        print("health check table table already exists")
+        print("health check table already exists")
 
     await conn.close()
 
 
+def health_error_kind_enum():
+    return """
+CREATE TYPE error_kind AS ENUM ('unknown', 'http', 'regex', 'timeout');
+    """
+
 def health_check_table():
     return """
-CREATE TABLE spyglass_health_status_test2 (
+CREATE TABLE spyglass_health_status_test4 (
     timestamp        timestamp without time zone,
     website          text,
     path             text,
     healthy          boolean,
     status_code      smallint,
-    response_time_ms integer
+    response_time_ms integer,
+    error_kind       error_kind,
+    PRIMARY KEY(timestamp, website, path)
 ) PARTITION BY RANGE (timestamp);
     """
 

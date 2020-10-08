@@ -262,6 +262,9 @@ it seemed like the best option is "timestamp without time zone" since my
 idea is to normalize on UTC always, so no need to store redundant time zone
 information (it should always be UTC).
 
+Also decided that what makes a unique entry is timestamp/domain/path and
+avoid having duplicated entries (discard duplicates).
+
 
 ## TODO's
 
