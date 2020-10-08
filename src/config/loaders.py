@@ -8,7 +8,7 @@ from health.checker import HealthCheck
 KafkaConfig = namedtuple('KafkaConfig', [
     'uri', 'ssl_cafile', 'ssl_cert', 'ssl_keyfile'])
 
-PostgreSQLConfig = namedtuple('PostgreSQL', [ 'uri', 'database' ])
+PostgreSQLConfig = namedtuple('PostgreSQLConfig', [ 'uri' ])
 
 
 def load_kafka_config():
@@ -95,17 +95,12 @@ def load_postgresql_config():
         "URI used to connect on PostgreSQL",
         missing,
     )
-    database = _load_from_env(
-        "SPYGLASS_POSTGRESQL_DATABASE",
-        "PostgreSQL database where data will be stored",
-        missing,
-    )
 
     if missing != []:
         errmsg = "\nMissing environment variables for postgresql config:"
         return None, errmsg + "\n\n" + "\n".join(missing)
 
-    return PostgreSQLConfig(uri=uri, database=database), None
+    return PostgreSQLConfig(uri=uri), None
 
 
 def _load_from_env(envvar, about, missing):

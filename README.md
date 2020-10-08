@@ -108,7 +108,6 @@ uses PostgreSQL for that.
 PostgreSQL configuration is done through these environment variables:
 
 * SPYGLASS_POSTGRESQL_URI : URI used to connect on PostgreSQL
-* SPYGLASS_POSTGRESQL_DATABASE" : PostgreSQL database where data will be stored
 
 If the configuration has been done properly, just running **spy** and
 **spycollect** should work.
@@ -250,6 +249,18 @@ instead an sleep was added and "it just works", I really hate that kind of stuff
 
 All storage related code (PostgreSQL) is not tested at all, the reason
 is that I ran out of time :-(.
+
+Design wise, it seemed like a good idea to partition the table by timestamp,
+at least from what I understood reading about it
+[here](https://www.postgresql.org/docs/11/ddl-partitioning.html).
+
+Since I don't have a lot of experience with PostgreSQL, much less
+as a time series, so it is not like a deep well informed decision :-).
+
+For the timestamp type, by looking [here](https://www.postgresql.org/docs/9.1/datatype-datetime.html)
+it seemed like the best option is "timestamp without time zone" since my
+idea is to normalize on UTC always, so no need to store redundant time zone
+information (it should always be UTC).
 
 
 ## TODO's

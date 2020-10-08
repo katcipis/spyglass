@@ -9,35 +9,33 @@ from config.loaders import load_postgresql_config
 
 
 async def main():
-    uri, err = load_postgresql_config()
+    cfg, err = load_postgresql_config()
     if err is not None:
         print(err)
         sys.exit(1)
 
-    conn = await asyncpg.connect(uri)
+    conn = await asyncpg.connect(cfg.uri)
     # # Execute a statement to create a new table.
-    # await conn.execute('''
-        # CREATE TABLE users(
-            # id serial PRIMARY KEY,
-            # name text,
-            # dob date
-        # )
-    # ''')
+    print("creating health check table")
+    try:
+        await conn.execute(health_check_table())
+    except asyncpg.exceptions.DuplicateTableError:
+        print("health check table table already exists")
 
-    # # Insert a record into the created table.
-    # await conn.execute('''
-        # INSERT INTO users(name, dob) VALUES($1, $2)
-    # ''', 'Bob', datetime.date(1984, 3, 1))
-
-    # # Select a row from the table.
-    # row = await conn.fetchrow(
-        # 'SELECT * FROM users WHERE name = $1', 'Bob')
-    # *row* now contains
-    # asyncpg.Record(id=1, name='Bob', dob=datetime.date(1984, 3, 1))
-
-    # Close the connection.
     await conn.close()
 
+
+def health_check_table():
+    return """
+CREATE TABLE spyglass_health_status_test2 (
+    timestamp        timestamp without time zone,
+    website          text,
+    path             text,
+    healthy          boolean,
+    status_code      smallint,
+    response_time_ms integer
+) PARTITION BY RANGE (timestamp);
+    """
 
 if __name__ == "__main__":
     asyncio.run(main())
