@@ -16,6 +16,14 @@ lint:
 test:
 	pytest ./tests/unit --cov-report term --cov=health
 
+.PHONY: run-spy
+run-spy:
+	./bin/spy
+
+.PHONY: run-spycollect
+run-spycollect:
+	./bin/spycollect
+
 .PHONY: test-setup
 test-setup:
 	python setup.py check
@@ -38,3 +46,8 @@ devimage:
 .PHONY: dev
 dev: devimage
 	docker run -v `pwd`:/app --rm -ti --entrypoint /bin/bash $(devimg)
+
+version?=latest
+.PHONY: image
+image:
+	docker build . -t katcipis/spyglass:$(version)
