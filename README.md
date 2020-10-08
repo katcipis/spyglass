@@ -53,7 +53,9 @@ make dev
 ```
 
 And you will get an interactive shell inside a container with all
-dependencies already installed.
+dependencies already installed. Any further make targets should
+work inside the container (with the exception of docker image
+building targets).
 
 
 ## Running tests
@@ -119,18 +121,20 @@ To run the **spy** tool and the **spycollect** you need to
 install all the [dependencies](#dependencies) or used the
 development environment provided through **make dev**.
 
-You can run:
+Then you can run:
 
 ```sh
-./bin/spy
+make run-spy
 ```
 
-And:
+To run the spy and:
 
 
 ```sh
-./bin/spycollect
+make run-spycollect
 ```
+
+To run the collector.
 
 And if any configuration is missing you should get a helpful message
 about which configurations are missing and what are each of them.
@@ -269,6 +273,7 @@ avoid having duplicated entries (discard duplicates/idempotency).
 
 Some things that I ended up doing in a way that didn't made much happy but I
 did it anyway because I wanted to finish it in time (prioritization).
+Some TODO's where left on the code, specially as the deadline approached :-).
 
 
 ### Integration Tests
@@ -279,3 +284,10 @@ topic functionality on aiokafka and was running out of time
 (other python sync kafka libs seemed to have these features).
 Preferred to just depend on a pre-created topic for now
 (but not feeling happy about it).
+
+
+### Python Packaging
+
+Since I'm very used to packaging things with Docker and never packaged
+anything using python setup.py/egg/etc I ended up packaging only
+with docker (again, timeout).

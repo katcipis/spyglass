@@ -16,6 +16,14 @@ lint:
 test:
 	pytest ./tests/unit --cov-report term --cov=health
 
+.PHONY: run-spy
+run-spy:
+	./bin/spy
+
+.PHONY: run-spycollect
+run-spycollect:
+	./bin/spycollect
+
 .PHONY: test-setup
 test-setup:
 	python setup.py check
